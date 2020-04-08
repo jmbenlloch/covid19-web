@@ -1,6 +1,5 @@
 <template>
   <div>
-    <input type="button" value="Click Me" @click="createMap()">
     <div id="mapid"></div>
 
     <div class="col-lg-12 d-flex d-lg-block">
@@ -108,7 +107,7 @@ export default {
     this.fetchDataRegions('uci', this.region, 'uci')
     this.fetchDataRegions('hospitalizados', this.region, 'hospital')
   },
-  mount() {
+  mounted() {
     this.createMap()
   },
   computed: {
@@ -175,19 +174,8 @@ export default {
       return f
     },
 
-    getRandomColor: function () {
-      var letters = '0123456789ABCDEF';
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    },
     setStyle: function(feature) {
-      var color = this.getRandomColor()
-      //console.log(color)
-      //console.log(feature.properties.code)
-      color = this.colors[feature.properties.code]
+      var color = this.colors[feature.properties.code]
       return {
         fillColor: color,
         color: 'gray',
@@ -197,9 +185,6 @@ export default {
       };
     },
     onEachFeature:function (feature, layer) {
-		    var popupContent = "<p>" + feature.properties.NAME_1 + " (ver datos en los gráficos abajo)</p>";
-        // layer.bindPopup(popupContent)
-        //   .on('popupopen', this.onRegionPopupOpen(this, feature.properties.code))
         layer.on({
           click : this.onRegionPopupOpen(this, feature.properties.code)
         })
@@ -225,7 +210,7 @@ export default {
       console.log(this.colors2)
     },
     createMap: function(){
-      // this.map = L.map('mapid').setView([40.4168, -3.7038], 6);
+      console.log("createMap")
       this.map = L.map('mapid').setView([39.803747, -3.7038], 6);
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -258,7 +243,6 @@ export default {
            this.latest = arrayToObject(dataArray)
            console.log(this.latest)
 
-           //this.computeColors(_.values(this.latest))
            this.computeColors(this.latest)
 
 
