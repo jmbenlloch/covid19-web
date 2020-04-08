@@ -1,6 +1,9 @@
-Region<template>
+<template>
   <div>
-      <div class="col-lg-12 d-flex d-lg-block">
+    <input type="button" value="Click Me" @click="createMap()">
+    <div id="mapid"></div>
+
+    <div class="col-lg-12 d-flex d-lg-block">
       <form>
         <div class="form-group form-inline">
           <label for="selRegion"><h3>{{$t('region')}}:</h3></label>
@@ -61,6 +64,7 @@ export default {
   },
   data () {
     return {
+      map : '',
       logScale : true,
       loaded : true,
       region : '13',
@@ -97,6 +101,9 @@ export default {
     this.fetchDataRegions('uci', this.region, 'uci')
     this.fetchDataRegions('hospitalizados', this.region, 'hospital')
   },
+  mount() {
+    this.createMap()
+  },
   computed: {
     scale: function () {
       return this.logScale ? 'logarithmic' : 'linear'
@@ -132,6 +139,48 @@ export default {
     },
   },
   methods : {
+    createMap: function(){
+      //var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+      this.map = L.map('mapid').setView([40.4168, -3.7038], 6);
+      this.tileLayer = L.tileLayer(
+        'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
+        {
+          maxZoom: 18,
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
+        }
+      );
+
+      this.tileLayer.addTo(this.map);
+
+      var myLines = {
+          "type": "LineString",
+          "coordinates": [[40.4168, -3.7], [40, -2], [39, -2]]
+      };
+
+
+      var myStyle = {
+          "color": "#ff7800",
+          "weight": 5,
+          "opacity": 0.65
+      };
+
+      var myLayer = L.geoJSON().addTo(this.map);
+      myLayer.addData(myLines,{
+        style: myStyle
+      });
+
+      // const baseURI = 'https://raw.githubusercontent.com/deldersveld/topojson/master/countries/spain/spain-comunidad-with-canary-islands.json'
+      const baseURI = 'http://localhost:8080/dist/spain-comunidad-with-canary-islands.geojson'
+      //const baseURI = 'https://raw.githubusercontent.com/ackuser/leaflet-spain-geojson/master/spain-provinces.geojson'
+      this.$http.get(baseURI)
+      .then((result) =>{
+        console.log(result)
+        var geojson = result.data
+
+        var myLayer = L.geoJSON().addTo(this.map);
+        myLayer.addData([geojson]);
+      })
+    },
     fetchRegions: function () {
       const baseURI = 'https://firestore.googleapis.com/v1/projects/covid19-simulator/databases/(default)/documents/comunidades/list'
       this.$http.get(baseURI)
@@ -185,3 +234,7 @@ export default {
   }
 }
 </script>
+
+<style>
+  #mapid { height: 500px; }
+</style>
