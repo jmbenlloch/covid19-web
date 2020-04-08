@@ -62,7 +62,6 @@
 
 <script>
 import SirModel from "../components/SirModel.vue"
-import SirModelComparison from "../components/SirModelComparison.vue"
 import i18n from '../plugins/i18n'
 
 import { VueMathjax } from 'vue-mathjax'
@@ -75,7 +74,6 @@ export default {
   },
   components: {
     SirModel,
-    SirModelComparison,
     'vue-mathjax': VueMathjax,
   },
   computed: {

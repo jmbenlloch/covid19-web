@@ -46,14 +46,12 @@
 
 <script>
 import SeirModel from "../components/SeirModel.vue"
-import SeirModelComparison from "../components/SeirModelComparison.vue"
 import i18n from '../plugins/i18n'
 
 export default {
   name: 'app',
   components: {
     SeirModel,
-    SeirModelComparison,
   },
   computed: {
     locale : function(){
