@@ -71,6 +71,10 @@ export default {
       regions : [],
       threshold : 2,
       height : 400,
+      latest : {},
+      colors : {},
+      //https://gka.github.io/palettes/#/50|s|add8e6,00005b|ffffe0,ff005e,93003a|1|1
+      colorScale : ['#add8e6', '#aad3e3', '#a7cee0', '#a4c9dd', '#a1c5da', '#9ec0d7', '#9bbbd4', '#98b6d1', '#95b2cf', '#92adcc', '#8fa8c9', '#8ca3c6', '#899fc3', '#869ac0', '#8396bd', '#8091ba', '#7d8cb7', '#7a88b5', '#7783b2', '#747faf', '#717aac', '#6e76a9', '#6b71a6', '#686da3', '#6569a1', '#62649e', '#5e609b', '#5b5c98', '#585795', '#555392', '#524f90', '#4f4b8d', '#4b478a', '#484287', '#453e84', '#413a82', '#3e367f', '#3a327c', '#372e79', '#332a76', '#302674', '#2c2271', '#281d6e', '#24196b', '#1f1569', '#1b1166', '#150c63', '#0f0860', '#08045e', '#00005b'],
       deaths: {
         labels: [],
         datasets: [],
@@ -146,11 +150,52 @@ export default {
       }
       return f
     },
+
+    getRandomColor: function () {
+      var letters = '0123456789ABCDEF';
+      var color = '#';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    },
+    setStyle: function(feature) {
+      var color = this.getRandomColor()
+      //console.log(color)
+      //console.log(feature.properties.code)
+      color = this.colors[feature.properties.code]
+      return {
+        fillColor: color,
+        color: color,
+        fillOpacity: 1,
+        opacity: 1,
+      };
+    },
     onEachFeature:function (feature, layer) {
 		    var popupContent = "<p>" + feature.properties.NAME_1 + " (ver datos en los gráficos abajo)</p>";
         layer.bindPopup(popupContent)
           .on('popupopen', this.onRegionPopupOpen(this, feature.properties.code))
 	  },
+    computeColors : function(data) {
+      // var valuesLog = _.map(array, Math.log)
+      var values    = _.values(this.latest)
+      var valuesLog = values
+      var maxValue = Math.max(...valuesLog)
+
+      const functionForEach = function(value, colors) {
+        return colors[Math.floor(value/maxValue * 50 - 1)]
+        // return Math.floor(value/maxValue * 50)
+      }
+      this.colors = _.mapValues(data, _.ary(_.partialRight(functionForEach, this.colorScale), 1));
+      console.log(this.colors)
+
+
+      const functionForEach2 = function(value, colors) {
+        return Math.floor(value/maxValue * 50)
+      }
+      this.colors2 = _.mapValues(data, _.ary(_.partialRight(functionForEach2, this.colorScale), 1));
+      console.log(this.colors2)
+    },
     createMap: function(){
       this.map = L.map('mapid').setView([40.4168, -3.7038], 6);
       this.tileLayer = L.tileLayer(
@@ -169,9 +214,30 @@ export default {
         console.log(result)
         var geojson = result.data
 
-        L.geoJSON(geojson, {
-            onEachFeature: this.onEachFeature
-        }).addTo(this.map);
+        const baseURI = 'https://firestore.googleapis.com/v1/projects/covid19-simulator/databases/(default)/documents/comunidades/casosLatest'
+        this.$http.get(baseURI)
+        .then((result) =>{
+          console.log(result)
+          var dataArray = result.data.fields.values.arrayValue.values
+
+          const arrayToObject = (array) =>
+           array.reduce((obj, item) => {
+             obj[item.mapValue.fields.ine_code.stringValue] = parseInt(item.mapValue.fields.total.stringValue)
+             return obj
+           }, {})
+
+           this.latest = arrayToObject(dataArray)
+           console.log(this.latest)
+
+           //this.computeColors(_.values(this.latest))
+           this.computeColors(this.latest)
+
+
+          L.geoJSON(geojson, {
+              style: this.setStyle,
+              onEachFeature: this.onEachFeature
+            }).addTo(this.map);
+          })
       })
     },
     fetchRegions: function () {
