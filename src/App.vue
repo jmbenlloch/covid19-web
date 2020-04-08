@@ -69,6 +69,7 @@
             <h5><strong>{{$t('moreInfo')}}</strong><a href='https://www.jotdown.es/2020/03/como-combatir-una-pandemia-ii/'>"Cómo combatir una pandemia"</a></h5>
           </div>
         </div>
+        <users/>
       </div>
     </footer>
   </div>
@@ -77,11 +78,13 @@
 <script>
 import CookieLaw from 'vue-cookie-law'
 import i18n from './plugins/i18n'
+import Users from './components/Users'
 
 export default {
   name: 'app',
   components: {
     CookieLaw,
+    Users,
   },
 
   data() {

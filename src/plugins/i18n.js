@@ -17,6 +17,8 @@ const messages = {
         comunidades : "Spanish regions",
         who: "Who are we",
         moreInfo : "More info in (spanish) ",
+        users : "Users",
+        visits : "Visits",
 
         cookies : `This web uses cookies to achieve the best user experience.
         In case of any doubt read our `,
@@ -92,6 +94,8 @@ const messages = {
         comunidades : "Comunidades autónomas",
         who: "Quiénes somos",
         moreInfo : "Más información en ",
+        users : "Usuarios",
+        visits : "Visitas",
 
         cookies : `Esta web usa cookies para conseguir la mejor experiencia de usuario.
         En caso de dudas consultar la `,
