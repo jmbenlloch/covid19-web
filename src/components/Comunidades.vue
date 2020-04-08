@@ -121,7 +121,6 @@ export default {
   watch: {
     region: _.debounce(
       function (newvalue, oldvalue) {
-        console.log(this.region)
       this.fetchDataRegions('fallecidos', this.region, 'deaths')
       this.fetchDataRegions('casos', this.region, 'cases')
       this.fetchDataRegions('altas', this.region, 'altas')
@@ -190,27 +189,15 @@ export default {
         })
 	  },
     computeColors : function(data) {
-      // var valuesLog = _.map(array, Math.log)
       var values    = _.values(this.latest)
-      var valuesLog = values
-      var maxValue = Math.max(...valuesLog)
+      var maxValue = Math.max(...values)
 
       const functionForEach = function(value, colors) {
         return colors[Math.floor(value/maxValue * 50 - 1)]
-        // return Math.floor(value/maxValue * 50)
       }
       this.colors = _.mapValues(data, _.ary(_.partialRight(functionForEach, this.colorScale), 1));
-      console.log(this.colors)
-
-
-      const functionForEach2 = function(value, colors) {
-        return Math.floor(value/maxValue * 50)
-      }
-      this.colors2 = _.mapValues(data, _.ary(_.partialRight(functionForEach2, this.colorScale), 1));
-      console.log(this.colors2)
     },
     createMap: function(){
-      console.log("createMap")
       this.map = L.map('mapid').setView([39.803747, -3.7038], 6);
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -225,13 +212,11 @@ export default {
       const baseURI = 'http://localhost:8080/dist/spain-comunidad-with-canary-islands.geojson'
       this.$http.get(baseURI)
       .then((result) =>{
-        console.log(result)
         var geojson = result.data
 
         const baseURI = 'https://firestore.googleapis.com/v1/projects/covid19-simulator/databases/(default)/documents/comunidades/casosLatest'
         this.$http.get(baseURI)
         .then((result) =>{
-          console.log(result)
           var dataArray = result.data.fields.values.arrayValue.values
 
           const arrayToObject = (array) =>
@@ -241,10 +226,7 @@ export default {
            }, {})
 
            this.latest = arrayToObject(dataArray)
-           console.log(this.latest)
-
            this.computeColors(this.latest)
-
 
           L.geoJSON(geojson, {
               style: this.setStyle,
