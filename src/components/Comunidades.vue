@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="col-lg-12">
+      <input type="button" @click="getLayers()" value="Click me"></input>
       <div id="mapid"></div>
+      {{regionLayers}}
     </div>
 
     <div class="col-lg-12 d-flex d-lg-block">
@@ -74,6 +76,7 @@ export default {
       height : 400,
       latest : {},
       colors : {},
+      regionLayers : {},
       previousLayerClicked : null,
       initialZoomMap : 6,
       //https://gka.github.io/palettes/#/50|s|add8e6,00005b|ffffe0,ff005e,93003a|1|1
@@ -127,6 +130,7 @@ export default {
   watch: {
     region: _.debounce(
       function (newvalue, oldvalue) {
+        this.updateMapSelection()
         this.loadData()
       },
       500),
@@ -146,7 +150,36 @@ export default {
       this.fetchDataRegions('uci'           , this.region, 'uci')
       this.fetchDataRegions('hospitalizados', this.region, 'hospital')
     },
-    onRegionPopupOpen: function (object, region) {
+    updateMapSelection : function(){
+      var selectedLayer = {}
+      var region = this.region
+      this.map.eachLayer(function(layer) {
+        if (layer.code && (layer.code == region)){
+          selectedLayer = layer
+        }
+      })
+      if (this.previousLayerClicked !== null) {
+        // Reset style
+        var colorOld = this.colorScale[region]
+        this.previousLayerClicked.setStyle({
+          weight: 1,
+          color: 'gray',
+          fillColor : colorOld,
+          dashArray: null,
+        });
+      }
+
+      var color = this.colorScaleSelected[region]
+      selectedLayer.setStyle({
+          weight: 1,
+          color: 'green',
+          fillColor: color,
+          dashArray: '',
+      });
+      this.previousLayerClicked = selectedLayer
+    },
+
+    onRegionSelect: function (object, region) {
       var f = function (e){
           object.region = region
 
@@ -186,8 +219,10 @@ export default {
     },
     onEachFeature:function (feature, layer) {
         layer.on({
-          click : this.onRegionPopupOpen(this, feature.properties.code)
+          click : this.onRegionSelect(this, feature.properties.code)
         })
+        layer.code = feature.properties.code
+        // console.log(layer)
 	  },
     computeColors : function(data) {
       var values    = _.values(this.latest)
@@ -234,7 +269,26 @@ export default {
               onEachFeature: this.onEachFeature
             }).addTo(this.map);
           })
+
+          console.log(this.map)
+          this.map.eachLayer(function(layer) {
+            // console.log(layer.options)
+            // if(layer.options && layer.options.pane == "overlayPane") {
+            //   console.log(layer.code);
+            // }
+                layer.bindPopup('Hello');
+          });
+
+
       })
+    },
+    getLayers : function(){
+      var layers = [];
+      this.map.eachLayer(function(layer) {
+          // if( layer instanceof L.TileLayer )
+              layers.push(layer);
+      });
+      console.log(layers)
     },
     fetchRegions: function () {
       const baseURI = 'https://firestore.googleapis.com/v1/projects/covid19-simulator/databases/(default)/documents/comunidades/list'
