@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div id="mapid"></div>
+    <div class="col-lg-12">
+      <div id="mapid"></div>
+    </div>
 
     <div class="col-lg-12 d-flex d-lg-block">
       <form>
@@ -73,6 +75,7 @@ export default {
       latest : {},
       colors : {},
       previousLayerClicked : null,
+      initialZoomMap : 6,
       //https://gka.github.io/palettes/#/50|s|add8e6,00005b|ffffe0,ff005e,93003a|1|1
       colorScale : ['#add8e6', '#aad3e3', '#a7cee0', '#a4c9dd', '#a1c5da', '#9ec0d7', '#9bbbd4', '#98b6d1', '#95b2cf', '#92adcc', '#8fa8c9', '#8ca3c6', '#899fc3', '#869ac0', '#8396bd', '#8091ba', '#7d8cb7', '#7a88b5', '#7783b2', '#747faf', '#717aac', '#6e76a9', '#6b71a6', '#686da3', '#6569a1', '#62649e', '#5e609b', '#5b5c98', '#585795', '#555392', '#524f90', '#4f4b8d', '#4b478a', '#484287', '#453e84', '#413a82', '#3e367f', '#3a327c', '#372e79', '#332a76', '#302674', '#2c2271', '#281d6e', '#24196b', '#1f1569', '#1b1166', '#150c63', '#0f0860', '#08045e', '#00005b'],
       //https://gka.github.io/palettes/#/50|s|6aeb6a,001400|ffffe0,ff005e,93003a|1|1
@@ -108,6 +111,9 @@ export default {
     this.fetchDataRegions('hospitalizados', this.region, 'hospital')
   },
   mounted() {
+    if (window.innerWidth < 800){
+      this.initialZoomMap = 5
+    }
     this.createMap()
   },
   computed: {
@@ -193,7 +199,7 @@ export default {
       this.colors = _.mapValues(data, _.ary(_.partialRight(functionForEach, this.colorScale), 1));
     },
     createMap: function(){
-      this.map = L.map('mapid').setView([39.803747, -3.7038], 6);
+      this.map = L.map('mapid').setView([39.803747, -3.7038], this.initialZoomMap);
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
         {
