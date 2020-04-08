@@ -204,7 +204,7 @@ export default {
 
       this.tileLayer.addTo(this.map);
 
-      const baseURI = 'http://localhost:8080/dist/spain-comunidad-with-canary-islands.geojson'
+      const baseURI = 'https://raw.githubusercontent.com/jmbenlloch/covid19-web/master/dist/spain-comunidad-with-canary-islands.geojson'
       this.$http.get(baseURI)
       .then((result) =>{
         var geojson = result.data
