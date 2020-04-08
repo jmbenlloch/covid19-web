@@ -115,6 +115,7 @@ export default {
   watch: {
     region: _.debounce(
       function (newvalue, oldvalue) {
+        console.log(this.region)
       this.fetchDataRegions('fallecidos', this.region, 'deaths')
       this.fetchDataRegions('casos', this.region, 'cases')
       this.fetchDataRegions('altas', this.region, 'altas')
@@ -139,8 +140,18 @@ export default {
     },
   },
   methods : {
+    onRegionPopupOpen: function (object, region) {
+      var f = function (popup){
+          object.region = region
+      }
+      return f
+    },
+    onEachFeature:function (feature, layer) {
+		    var popupContent = "<p>" + feature.properties.NAME_1 + " (ver datos en los gráficos abajo)</p>";
+        layer.bindPopup(popupContent)
+          .on('popupopen', this.onRegionPopupOpen(this, feature.properties.code))
+	  },
     createMap: function(){
-      //var mymap = L.map('mapid').setView([51.505, -0.09], 13);
       this.map = L.map('mapid').setView([40.4168, -3.7038], 6);
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -152,33 +163,15 @@ export default {
 
       this.tileLayer.addTo(this.map);
 
-      var myLines = {
-          "type": "LineString",
-          "coordinates": [[40.4168, -3.7], [40, -2], [39, -2]]
-      };
-
-
-      var myStyle = {
-          "color": "#ff7800",
-          "weight": 5,
-          "opacity": 0.65
-      };
-
-      var myLayer = L.geoJSON().addTo(this.map);
-      myLayer.addData(myLines,{
-        style: myStyle
-      });
-
-      // const baseURI = 'https://raw.githubusercontent.com/deldersveld/topojson/master/countries/spain/spain-comunidad-with-canary-islands.json'
       const baseURI = 'http://localhost:8080/dist/spain-comunidad-with-canary-islands.geojson'
-      //const baseURI = 'https://raw.githubusercontent.com/ackuser/leaflet-spain-geojson/master/spain-provinces.geojson'
       this.$http.get(baseURI)
       .then((result) =>{
         console.log(result)
         var geojson = result.data
 
-        var myLayer = L.geoJSON().addTo(this.map);
-        myLayer.addData([geojson]);
+        L.geoJSON(geojson, {
+            onEachFeature: this.onEachFeature
+        }).addTo(this.map);
       })
     },
     fetchRegions: function () {
