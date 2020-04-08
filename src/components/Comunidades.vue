@@ -121,30 +121,25 @@ export default {
   watch: {
     region: _.debounce(
       function (newvalue, oldvalue) {
-      this.fetchDataRegions('fallecidos', this.region, 'deaths')
-      this.fetchDataRegions('casos', this.region, 'cases')
-      this.fetchDataRegions('altas', this.region, 'altas')
-      this.fetchDataRegions('uci', this.region, 'uci')
-      this.fetchDataRegions('hospitalizados', this.region, 'hospital')
+        this.loadData()
       },
       500),
     scale: function (newvalue, oldvalue) {
-      this.fetchDataRegions('fallecidos', this.region, 'deaths')
-      this.fetchDataRegions('casos', this.region, 'cases')
-      this.fetchDataRegions('altas', this.region, 'altas')
-      this.fetchDataRegions('uci', this.region, 'uci')
-      this.fetchDataRegions('hospitalizados', this.region, 'hospital')
+      this.loadData()
       },
     locale: function (newvalue, oldvalue) {
       this.fetchRegions()
-      this.fetchDataRegions('fallecidos', this.region, 'deaths')
-      this.fetchDataRegions('casos', this.region, 'cases')
-      this.fetchDataRegions('altas', this.region, 'altas')
-      this.fetchDataRegions('uci', this.region, 'uci')
-      this.fetchDataRegions('hospitalizados', this.region, 'hospital')
+      this.loadData()
     },
   },
   methods : {
+    loadData : function(){
+      this.fetchDataRegions('fallecidos'    , this.region, 'deaths')
+      this.fetchDataRegions('casos'         , this.region, 'cases')
+      this.fetchDataRegions('altas'         , this.region, 'altas')
+      this.fetchDataRegions('uci'           , this.region, 'uci')
+      this.fetchDataRegions('hospitalizados', this.region, 'hospital')
+    },
     onRegionPopupOpen: function (object, region) {
       var f = function (e){
           object.region = region
