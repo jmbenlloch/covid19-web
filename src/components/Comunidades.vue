@@ -1,9 +1,7 @@
 <template>
   <div>
     <div class="col-lg-12">
-      <input type="button" @click="getLayers()" value="Click me"></input>
       <div id="mapid"></div>
-      {{regionLayers}}
     </div>
 
     <div class="col-lg-12 d-flex d-lg-block">
@@ -114,7 +112,7 @@ export default {
     this.fetchDataRegions('hospitalizados', this.region, 'hospital')
   },
   mounted() {
-    if (window.innerWidth < 800){
+    if (window.innerWidth < 900){
       this.initialZoomMap = 5
     }
     this.createMap()
@@ -269,26 +267,7 @@ export default {
               onEachFeature: this.onEachFeature
             }).addTo(this.map);
           })
-
-          console.log(this.map)
-          this.map.eachLayer(function(layer) {
-            // console.log(layer.options)
-            // if(layer.options && layer.options.pane == "overlayPane") {
-            //   console.log(layer.code);
-            // }
-                layer.bindPopup('Hello');
-          });
-
-
       })
-    },
-    getLayers : function(){
-      var layers = [];
-      this.map.eachLayer(function(layer) {
-          // if( layer instanceof L.TileLayer )
-              layers.push(layer);
-      });
-      console.log(layers)
     },
     fetchRegions: function () {
       const baseURI = 'https://firestore.googleapis.com/v1/projects/covid19-simulator/databases/(default)/documents/comunidades/list'
